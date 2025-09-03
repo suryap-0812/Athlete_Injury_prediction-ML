@@ -1,0 +1,81 @@
+# -----------------------------
+# Python Specific
+# -----------------------------
+
+# Bytecode files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Compiled C extensions
+*.so
+
+# Logs
+*.log
+
+# SQLite or other temporary databases
+*.sqlite3
+*.db
+
+# -----------------------------
+# Data & Dataset
+# -----------------------------
+
+# Large raw data files
+data/raw/
+*.csv
+*.xlsx
+
+# If you want to keep only the sample dataset, allow it:
+!data/athlete_injury_prediction_dataset.xlsx
+
+# -----------------------------
+# OS Specific
+# -----------------------------
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# -----------------------------
+# IDE / Editor Specific
+# -----------------------------
+
+# VSCode
+.vscode/
+
+# PyCharm
+.idea/
+
+# -----------------------------
+# Environment & Secrets
+# -----------------------------
+
+# API keys, secrets, or config files
+.env
+*.key
+*.secret
+
+# -----------------------------
+# Build / Output
+# -----------------------------
+
+# Temporary build folders
+build/
+dist/
+*.egg-info/
+
+# Reports
+reports/
