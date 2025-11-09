@@ -1,0 +1,28 @@
+{
+  "feature_names": [
+    "age",
+    "height_cm", 
+    "weight_kg",
+    "training_load",
+    "training_intensity",
+    "recovery_time_hrs",
+    "prior_injury_count",
+    "fatigue_level",
+    "wellness_score",
+    "external_load",
+    "gender_M",
+    "sport_type_football",
+    "sport_type_running"
+  ],
+  "categorical_mappings": {
+    "gender": {
+      "male": {"gender_M": 1},
+      "female": {"gender_M": 0}
+    },
+    "sport_type": {
+      "basketball": {"sport_type_football": 0, "sport_type_running": 0},
+      "football": {"sport_type_football": 1, "sport_type_running": 0},
+      "running": {"sport_type_football": 0, "sport_type_running": 1}
+    }
+  }
+}

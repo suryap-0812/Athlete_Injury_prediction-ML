@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏃‍♂️ Athlete Injury Prediction System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            border-radius: 20px 20px 0 0 !important;
+            border: none;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+            padding: 12px 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .btn-predict {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            border: none;
+            border-radius: 50px;
+            padding: 18px 50px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            transition: all 0.4s ease;
+            text-transform: none;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-predict:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(255, 107, 107, 0.5);
+            color: white;
+            background: linear-gradient(135deg, #ff5252, #d84315);
+        }
+        
+        .btn-predict:active {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+        
+        .btn-predict::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-predict:hover::before {
+            left: 100%;
+        }
+        
+        .result-card {
+            margin-top: 2rem;
+            border-radius: 20px;
+            overflow: hidden;
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .risk-high {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+        
+        .risk-low {
+            background: linear-gradient(135deg, #51cf66, #40c057);
+            color: white;
+        }
+        
+        .recommendation-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px 15px;
+            margin: 5px 0;
+            border-left: 4px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+        
+        .loading {
+            display: none;
+        }
+        
+        .spinner-border {
+            color: #667eea;
+        }
+        
+        .header-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .input-group-text {
+            border-radius: 15px 0 0 15px;
+            border: 2px solid #e9ecef;
+            border-right: none;
+            background-color: #f8f9fa;
+        }
+        
+        .input-group .form-control {
+            border-left: none;
+            border-radius: 0 15px 15px 0;
+        }
+        
+        .alert {
+            border-radius: 15px;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="header-icon">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                        <h2 class="mb-0">Athlete Injury Prediction System</h2>
+                        <p class="mb-0 mt-2">Advanced ML-powered injury risk assessment</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <form id="predictionForm">
+                            <div class="row">
+                                <!-- Personal Information -->
+                                <div class="col-md-6">
+                                    <h5 class="text-primary mb-3">
+                                        <i class="fas fa-user me-2"></i>Personal Information
+                                    </h5>
+                                    
+                                    <div class="form-group">
+                                        <label for="age" class="form-label">Age (years)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-birthday-cake"></i></span>
+                                            <input type="number" class="form-control" id="age" name="age" 
+                                                   min="15" max="50" value="25" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="gender" class="form-label">Gender</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-venus-mars"></i></span>
+                                            <select class="form-select" id="gender" name="gender" required>
+                                                <option value="male">Male</option>
+                                                <option value="female">Female</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="height_cm" class="form-label">Height (cm)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-ruler-vertical"></i></span>
+                                            <input type="number" class="form-control" id="height_cm" name="height_cm" 
+                                                   min="150" max="220" value="175" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="weight_kg" class="form-label">Weight (kg)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-weight"></i></span>
+                                            <input type="number" class="form-control" id="weight_kg" name="weight_kg" 
+                                                   min="40" max="150" value="70" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="sport_type" class="form-label">Sport Type</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-running"></i></span>
+                                            <select class="form-select" id="sport_type" name="sport_type" required>
+                                                {% for sport in sport_types %}
+                                                <option value="{{ sport }}" {% if sport == 'basketball' %}selected{% endif %}>
+                                                    {% if sport == 'football' %}
+                                                        American Football
+                                                    {% else %}
+                                                        {{ sport.title() }}
+                                                    {% endif %}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Training & Health Information -->
+                                <div class="col-md-6">
+                                    <h5 class="text-success mb-3">
+                                        <i class="fas fa-dumbbell me-2"></i>Training & Health
+                                    </h5>
+                                    
+                                    <div class="form-group">
+                                        <label for="training_load" class="form-label">Training Load (1-10)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-chart-line"></i></span>
+                                            <input type="number" class="form-control" id="training_load" name="training_load" 
+                                                   min="1" max="10" value="7" required>
+                                        </div>
+                                        <small class="text-muted">1 = Very Light, 10 = Maximum</small>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="training_intensity" class="form-label">Training Intensity (1-10)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-fire"></i></span>
+                                            <input type="number" class="form-control" id="training_intensity" name="training_intensity" 
+                                                   min="1" max="10" value="7" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="recovery_time_hrs" class="form-label">Recovery Time (hours)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-bed"></i></span>
+                                            <input type="number" class="form-control" id="recovery_time_hrs" name="recovery_time_hrs" 
+                                                   min="4" max="12" step="0.5" value="8" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="prior_injury_count" class="form-label">Previous Injuries</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-band-aid"></i></span>
+                                            <input type="number" class="form-control" id="prior_injury_count" name="prior_injury_count" 
+                                                   min="0" max="10" value="1" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="fatigue_level" class="form-label">Fatigue Level (1-10)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-battery-half"></i></span>
+                                            <input type="number" class="form-control" id="fatigue_level" name="fatigue_level" 
+                                                   min="1" max="10" value="5" required>
+                                        </div>
+                                        <small class="text-muted">1 = Fresh, 10 = Exhausted</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="wellness_score" class="form-label">Wellness Score (1-10)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-heart"></i></span>
+                                            <input type="number" class="form-control" id="wellness_score" name="wellness_score" 
+                                                   min="1" max="10" value="7" required>
+                                        </div>
+                                        <small class="text-muted">Overall physical and mental wellbeing</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="external_load" class="form-label">External Load</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-tachometer-alt"></i></span>
+                                            <input type="number" class="form-control" id="external_load" name="external_load" 
+                                                   min="200" max="1500" value="800" required>
+                                        </div>
+                                        <small class="text-muted">Training load metrics (GPS, accelerometer)</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-predict">
+                                    <i class="fas fa-shield-alt me-2"></i>Predict Injury Risk
+                                </button>
+                                <div class="loading mt-3">
+                                    <div class="spinner-border" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <p class="mt-2">Analyzing athlete data...</p>
+                                </div>
+                            </div>
+                        </form>
+                        
+                        <!-- Results Section -->
+                        <div id="results" class="result-card" style="display: none;">
+                            <!-- Results will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('predictionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Show loading spinner
+            document.querySelector('.loading').style.display = 'block';
+            document.querySelector('button[type="submit"]').disabled = true;
+            
+            // Hide previous results
+            document.getElementById('results').style.display = 'none';
+            
+            // Collect form data
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    displayResults(result);
+                } else {
+                    displayError(result.error || 'An error occurred');
+                }
+            } catch (error) {
+                displayError('Network error: ' + error.message);
+            } finally {
+                // Hide loading spinner
+                document.querySelector('.loading').style.display = 'none';
+                document.querySelector('button[type="submit"]').disabled = false;
+            }
+        });
+        
+        function displayResults(result) {
+            const riskClass = result.prediction === 1 ? 'risk-high' : 'risk-low';
+            const riskIcon = result.prediction === 1 ? 'fas fa-exclamation-triangle' : 'fas fa-check-circle';
+            
+            let recommendationsHtml = '';
+            if (result.recommendations && result.recommendations.length > 0) {
+                recommendationsHtml = result.recommendations.map(rec => 
+                    `<div class="recommendation-item">${rec}</div>`
+                ).join('');
+            }
+            
+            const resultsHtml = `
+                <div class="card ${riskClass}">
+                    <div class="card-header text-center">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">
+                            <i class="${riskIcon}"></i>
+                        </div>
+                        <h3>${result.risk_level}</h3>
+                        <h4>${result.probability}% Injury Probability</h4>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="mb-3">
+                            <i class="fas fa-lightbulb me-2"></i>Recommendations
+                        </h5>
+                        ${recommendationsHtml || '<div class="recommendation-item">Continue monitoring and maintain current training protocols.</div>'}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('results').innerHTML = resultsHtml;
+            document.getElementById('results').style.display = 'block';
+            
+            // Scroll to results
+            document.getElementById('results').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
+        
+        function displayError(errorMessage) {
+            const errorHtml = `
+                <div class="alert alert-danger">
+                    <h5><i class="fas fa-exclamation-circle me-2"></i>Error</h5>
+                    <p>${errorMessage}</p>
+                </div>
+            `;
+            
+            document.getElementById('results').innerHTML = errorHtml;
+            document.getElementById('results').style.display = 'block';
+        }
+        
+        // Add input validation and real-time feedback
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', function() {
+                this.classList.remove('is-invalid');
+                if (this.value < this.min || this.value > this.max) {
+                    this.classList.add('is-invalid');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
